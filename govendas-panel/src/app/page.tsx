@@ -1,24 +1,24 @@
 'use client'
 import { useState } from 'react'
+import TabMetas from './components/TabMetas'
 import TabHistorico from './components/TabHistorico'
 import TabAnalise from './components/TabAnalise'
-import TabAcoes from './components/TabAcoes'
+import TabInsights from './components/TabInsights'
 import TabHubspot from './components/TabHubspot'
 
 const tabs = [
-  { id: 'historico', label: '📋 Histórico de MQLs',    desc: 'Série histórica, clientes e churn' },
-  { id: 'analise',   label: '📊 Análise Semanal',       desc: 'Desafios, segmentos e sem contato' },
-  { id: 'acoes',     label: '🎯 Ações para a Meta',     desc: 'Follow-up, scripts e cadências' },
-  { id: 'hubspot',   label: '🟠 Atividades HubSpot',    desc: 'Chamadas, e-mails e atendimentos' },
+  { id: 'metas',     label: '📊 Metas YTD 2026',       desc: 'Indicadores, funil e tendência' },
+  { id: 'historico', label: '📋 Histórico de MQLs',     desc: 'Série histórica e clientes ativos' },
+  { id: 'analise',   label: '🔍 Análise Semanal',        desc: 'Desafios, segmentos e canais' },
+  { id: 'insights',  label: '💡 Insights & Ações',       desc: 'Análises e plano de ação' },
+  { id: 'sdr',       label: '📞 Atividade SDR',          desc: 'Chamadas, e-mails e follow-up' },
 ]
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('historico')
+  const [activeTab, setActiveTab] = useState('metas')
 
   return (
     <div className="min-h-screen bg-slate-100">
-
-      {/* Top bar */}
       <header className="bg-[#1F4E79] text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -34,20 +34,14 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Tabs */}
       <div className="bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-0 overflow-x-auto">
             {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`px-5 py-4 text-sm font-semibold border-b-2 transition-all flex flex-col items-start gap-0.5 whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-[#ED7D31] text-[#1F4E79]'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                }`}
-              >
+                  activeTab === tab.id ? 'border-[#ED7D31] text-[#1F4E79]' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }`}>
                 <span>{tab.label}</span>
                 <span className="text-xs font-normal text-slate-400">{tab.desc}</span>
               </button>
@@ -56,15 +50,14 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
+        {activeTab === 'metas'     && <TabMetas />}
         {activeTab === 'historico' && <TabHistorico />}
         {activeTab === 'analise'   && <TabAnalise />}
-        {activeTab === 'acoes'     && <TabAcoes />}
-        {activeTab === 'hubspot'   && <TabHubspot />}
+        {activeTab === 'insights'  && <TabInsights />}
+        {activeTab === 'sdr'       && <TabHubspot />}
       </main>
 
-      {/* Footer */}
       <footer className="text-center py-6 text-xs text-slate-400">
         GoVendas Painel Comercial · {new Date().getFullYear()}
       </footer>

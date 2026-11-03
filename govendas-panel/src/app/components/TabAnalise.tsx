@@ -8,7 +8,8 @@ import UploadCSV from './UploadCSV'
 import {
   desafiosData, segmentosData, cruzamentoData, campanhasData,
   semContato, leadsSemContato, followUpLeads,
-  LeadSemContato, FollowUpLead
+  canalData, metasGeral,
+  LeadSemContato, FollowUpLead, CanalRow
 } from '../lib/data'
 
 const CORES_DESAFIO = ['#C00000','#ED7D31','#ED7D31','#ED7D31','#FFC000','#FFC000','#FFC000','#70AD47','#70AD47']
@@ -92,6 +93,98 @@ export default function TabAnalise() {
         <KPICard label="Sem Conexão" value={semContato.semConexao} sub="Não atenderam" color="#C00000" icon="🔴" />
         <KPICard label="Em Tentativa" value={semContato.emTentativa} sub="1ª ou 2ª tentativa" color="#ED7D31" icon="🟠" />
         <KPICard label="Reunião Agendada" value={semContato.reuniaoJaAgendada} sub="Já avançaram" color="#70AD47" icon="✅" />
+      </div>
+
+      {/* ── ACOMPANHAMENTO DE CONVERSÃO POR CANAL ── */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-bold text-slate-700">Acompanhamento de Conversão por Canal — YTD</h3>
+            <p className="text-xs text-slate-400">MQL = leads qualificados | SQL = qualificados para demo | Pend. = aguardando contato | Taxa = MQL→SQL</p>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b-2 border-[#1F4E79]">
+                {['Canal','Total MQL (YTD)','SQL','Pendentes','Taxa MQL→SQL','Taxa Fechamento'].map(h => (
+                  <th key={h} className={`py-2 px-3 text-xs font-bold text-[#1F4E79] uppercase ${h === 'Canal' ? 'text-left' : 'text-center'}`}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {canalData.map((row: CanalRow, i: number) => (
+                <tr key={i} className={`border-b border-slate-100 ${i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}`}>
+                  <td className="py-3 px-3 font-semibold text-slate-800 text-xs">{row.canal}</td>
+                  <td className="py-3 px-3 text-center text-xs font-bold text-slate-700">{row.totalMQL ?? <span className="text-slate-300">—</span>}</td>
+                  <td className="py-3 px-3 text-center text-xs font-bold text-[#2E75B6]">{row.sql ?? <span className="text-slate-300">—</span>}</td>
+                  <td className="py-3 px-3 text-center text-xs">
+                    {row.pend !== null && row.pend !== undefined && row.pend > 0
+                      ? <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700">{row.pend}</span>
+                      : <span className="text-slate-300">—</span>}
+                  </td>
+                  <td className="py-3 px-3 text-center">
+                    {row.taxaMQLSQL !== null && row.taxaMQLSQL !== undefined ? (
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${row.taxaMQLSQL >= 20 ? 'bg-green-100 text-green-700' : row.taxaMQLSQL >= 10 ? 'bg-yellow-100 text-yellow-700' : row.taxaMQLSQL > 0 ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>{row.taxaMQLSQL}%</span>
+                    ) : <span className="text-slate-300 text-xs">—</span>}
+                  </td>
+                  <td className="py-3 px-3 text-center">
+                    {row.taxaFechamento !== null && row.taxaFechamento !== undefined && row.taxaFechamento > 0 ? (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">{row.taxaFechamento}%</span>
+                    ) : <span className="text-slate-300 text-xs">—</span>}
+                  </td>
+                </tr>
+              ))}
+              <tr className="border-t-2 border-[#1F4E79] bg-[#EBF3FB]">
+                <td className="py-3 px-3 text-xs font-bold text-[#1F4E79]">TOTAL</td>
+                <td className="py-3 px-3 text-center text-xs font-bold text-[#1F4E79]">{canalData.reduce((s: number, r: CanalRow) => s + (r.totalMQL ?? 0), 0)}</td>
+                <td className="py-3 px-3 text-center text-xs font-bold text-[#1F4E79]">{canalData.reduce((s: number, r: CanalRow) => s + (r.sql ?? 0), 0)}</td>
+                <td className="py-3 px-3 text-center text-xs font-bold text-[#1F4E79]">{canalData.reduce((s: number, r: CanalRow) => s + (r.pend ?? 0), 0)}</td>
+                <td className="py-3 px-3 text-center">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700">
+                    {Math.round((canalData.reduce((s: number, r: CanalRow) => s + (r.sql ?? 0), 0) / canalData.reduce((s: number, r: CanalRow) => s + (r.totalMQL ?? 0), 0)) * 100)}%
+                  </span>
+                </td>
+                <td className="py-3 px-3 text-center"><span className="text-slate-300 text-xs">—</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── METAS FUNIL GERAL ── */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="mb-4">
+          <h3 className="text-sm font-bold text-slate-700">Acompanhamento de Metas — Funil Geral</h3>
+          <p className="text-xs text-slate-400">Visão consolidada de todos os canais | % de fechamento sobre MQL gerado</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {metasGeral.map((m, i) => {
+            const pct = Math.min(Math.round((m.real / m.meta) * 100), 100)
+            const color = pct >= 100 ? '#375623' : pct >= 70 ? '#ED7D31' : '#C00000'
+            const totalMQLGerado = metasGeral[0].real
+            return (
+              <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                <p className="text-xs font-semibold text-slate-500 uppercase mb-2">{m.etapa}</p>
+                <div className="flex items-end gap-1 mb-2">
+                  <span className="text-2xl font-bold" style={{ color }}>{m.real}</span>
+                  <span className="text-sm text-slate-400 mb-0.5">/ {m.meta}</span>
+                </div>
+                <div className="bg-slate-200 rounded-full h-2 mb-2">
+                  <div className="h-2 rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold" style={{ color }}>{pct}% da meta</span>
+                  {m.pctFechamento !== undefined ? (
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{m.pctFechamento}% p/ fechar</span>
+                  ) : (
+                    <span className="text-xs text-slate-400">{totalMQLGerado > 0 ? Math.round((m.real / totalMQLGerado) * 100) : 0}% do MQL</span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Desafios + Segmentos */}
